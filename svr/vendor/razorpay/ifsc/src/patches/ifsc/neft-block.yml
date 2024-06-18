@@ -1,0 +1,15 @@
+---
+# https://github.com/razorpay/ifsc/issues/154
+# Bank Of Ceylon
+# Krung Thai Bank PCL
+action: patch
+patch:
+  NEFT: false
+ifsc:
+  # These are not VALID IFSCs as of now, so are
+  # left commented
+  # - BCEY0NEFTSC
+  # - KRTH0INBB00
+  # - KRTH0INBB01
+  - BCEY0000001
+  - BCEY0CHEN01

@@ -1,0 +1,56 @@
+scraper/scripts/sheets/
+scraper/scripts/nach.json
+scraper/scripts/excel_list.txt
+scraper/scripts/data/
+scraper/scripts/ifsc-api/
+scraper/scripts/release.md
+scraper/vendor
+scraper/banks
+src/IFSC-list.json
+
+# Node.js
+node_modules
+
+# Ruby
+Gemfile.lock
+*.gem
+.bundle
+
+
+# php
+/vendor/
+composer.lock
+
+.phpunit.result.cache
+# Elixir
+
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+/priv/ifsc-data/
+mix.lock
+
+
+# Misc
+.config
+.yardoc
+Gemfile.lock
+InstalledFiles
+
+# One-off scripts
+*.php
+tmp/
+
+# Code coverage reports
+*.cov
+
+# IDE files
+.idea/*
+
+# Temp files
+.*~
+

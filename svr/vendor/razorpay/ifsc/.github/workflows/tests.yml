@@ -1,0 +1,57 @@
+on: push
+name: Tests
+jobs:
+  node:
+    strategy:
+      matrix:
+        node: ["12", "14", "16", "18"]
+    name: Node.js
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{matrix.node}}
+      - run: npm install
+      - run: npm test
+  php:
+    strategy:
+      matrix:
+        # https://www.php.net/supported-versions.php
+        php: ["8.1"]
+    name: PHP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{matrix.php}}
+          tools: phpunit, composer
+      - run: composer install --no-interaction
+      - run: phpunit --migrate-configuration -d memory_limit=-1
+  ruby:
+    strategy:
+      matrix:
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
+    name: Ruby
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle install
+      - run: bundle exec rake
+  go:
+    strategy:
+      matrix:
+        go: ["^1.17.0", "^1.18.0", "^1.19.0"]
+    name: Go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - run: ./tests/constants.sh

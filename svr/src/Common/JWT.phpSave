@@ -1,0 +1,235 @@
+<?php
+namespace LWMIS\Common;
+
+use Lcobucci\Clock\FrozenClock;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer;
+use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Signer\Key\LocalFileReference;
+use Lcobucci\JWT\UnencryptedToken;
+use Lcobucci\JWT\Validation\Constraint\IdentifiedBy;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\PermittedFor;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+
+// use Lcobucci\JWT\Builder;
+// use Lcobucci\JWT\Validation\Constraint;
+
+// use Lcobucci\JWT\Signer\Key\InMemory;
+
+// use Lcobucci\Clock\SystemClock;
+
+class JWT
+{
+  private Configuration $config;
+  private Signer $signer;
+  private Key $private_key;
+  private Key $public_key;
+
+  function __construct()
+  {
+    $this->signer = new Signer\Rsa\Sha256();
+    $this->private_key = LocalFileReference::file(__DIR__ . '/jwt-private.key');
+    $this->public_key = LocalFileReference::file(__DIR__ . '/jwt-public.key');
+
+    // \var_dump($private_key);
+    $this->config = Configuration::forAsymmetricSigner(
+    // You may use RSA or ECDSA and all their variations (256, 384, and 512)
+      $this->signer,
+      $this->private_key,
+      $this->public_key,
+    // InMemory::base64Encoded('mBC5v1sOKVvbdEitdSBenu59nfNfhwkedkJVNabosTw=')
+    // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
+    );
+
+    // $this->config->setValidationConstraints();
+  }
+
+  function generateToken(object $payload): string
+  {
+    $now = new \DateTimeImmutable();
+    // $config = $container->get(Configuration::class);
+    // assert($config instanceof Configuration);
+
+    $builder = $this->config->builder();
+    // Configures the issuer (iss claim)
+    $builder->issuedBy($this->getDomainName());
+    // Configures the audience (aud claim)
+    $builder->permittedFor($this->getDomainName());
+    // Configures the id (jti claim)
+    $builder->identifiedBy('4f1g23a12aa');
+    // Configures the time that the token was issue (iat claim)
+    $builder->issuedAt($now);
+    // Configures the time that the token can be used (nbf claim)
+    $builder->canOnlyBeUsedAfter($now->modify('+0 second'));
+    // Configures the expiration time of the token (exp claim)
+    $builder->expiresAt($now->modify('+15 minutes'));
+    // // Configures a new claim, called "uid"
+    // ->withClaim('uid', 1)
+    // // Configures a new header, called "foo"
+    // ->withHeader('foo', 'bar')
+
+    // \var_dump($builder);
+
+    if (isset($payload) && gettype($payload) === "object") {
+      // configures a new claim, called "payload"
+      $builder->withClaim('payload', $payload);
+    } else {
+      throw new \Exception("Payload not found or Payload should be an object.");
+    }
+
+    // Builds a new token
+    $token = $builder->getToken($this->config->signer(), $this->config->signingKey());
+
+    return $token->toString();
+  }
+
+  private function getDomainName()
+  {
+    $domain_name = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['SERVER_NAME'];
+    return $domain_name;
+  }
+
+  function validateToken($direct_bearer = null)
+  {
+    if (\is_null($direct_bearer)) {
+      $bearer = $this->extractToken();
+    } else {
+      $bearer = $direct_bearer;
+    }
+
+    $now = new \DateTimeImmutable();
+    try {
+      $token = $this->config->parser()->parse(isset($bearer) ? $bearer : '');
+      assert($token instanceof UnencryptedToken);
+    } catch (\Exception $e) {
+      throw new \Exception("Token verification failed.");
+    }
+
+    $this->config->setValidationConstraints(
+      new IdentifiedBy('4f1g23a12aa'),
+      new IssuedBy($this->getDomainName()),
+      new PermittedFor($this->getDomainName()),
+      // new RelatedTo(),
+      new SignedWith($this->signer, $this->public_key),
+      new StrictValidAt(new FrozenClock($now))
+    );
+
+    $constraints = $this->config->validationConstraints();
+    // \var_dump($constraints);
+
+    if ($this->config->validator()->validate($token, ...$constraints)) {
+      $claims = $token->claims();
+      if ($claims->has('payload')) {
+        $payload = $claims->get('payload');
+        if (gettype($payload) !== "array") {
+          throw new \Exception("Invalid authentication data. Please Login and try again.");
+        }
+        return $payload;
+        // \var_dump();
+        // echo "<hr>Thiru<hr>";
+        // $token->getClaim('payload');
+      } else {
+        throw new \Exception("Invalid authentication data. Please Login and try again.");
+      }
+    } else {
+      throw new \Exception("Token is not valid / Expired.");
+    };
+  }
+
+  private function extractToken()
+  {
+    $authorizationData = null;
+    foreach (getallheaders() as $name => $value) {
+      if (strtolower($name) == strtolower("Authorization"))
+        $authorizationData = $value;
+    }
+    if (gettype($authorizationData) == "string") {
+      list($jwt) = sscanf($authorizationData, 'Bearer %s');
+      return $jwt;
+    } else
+      throw new \Exception("Authorization Data not found.");
+  }
+
+  function print()
+  {
+    \var_dump($this->config->signer());
+    echo "<hr>";
+    \var_dump($this->config->signingKey());
+    echo "<hr>";
+    \var_dump($this->config->verificationKey());
+    echo "<hr>";
+    \var_dump($this->config->validator());
+    echo "<hr>";
+    \var_dump($this->config->validationConstraints());
+    echo "<hr>";
+    \var_dump($this->config->parser());
+    echo "<hr>";
+  }
+}
+
+// define("JWT_JTI", "4f1g23a12aa");
+// define("AUDIENCE", "Web Browsers");
+// define("RSA_PUBLIC_KEY", "");
+
+// define("RSA_PRIVATE_KEY", "");
+
+// use Lcobucci\JWT\Builder;
+// use Lcobucci\JWT\Parser;
+// use Lcobucci\JWT\Signer\Keychain;
+// use Lcobucci\JWT\Signer\Rsa\Sha256;
+// use Lcobucci\JWT\ValidationData;
+// use Exception;
+
+// static function generateToken($payload)
+// {
+//   $domainName = self::getDomainName();
+//   $signer = new Sha256();
+//   $keychain = new Keychain();
+
+//   $builder = new Builder();
+//   $builder->setIssuer($domainName);
+//   $builder->setAudience(AUDIENCE);
+//   $builder->setId(JWT_JTI, false);
+//   $builder->setIssuedAt(time());
+//   $builder->setNotBefore(time()); // Min delay 0 seconds
+//   $builder->setExpiration(time() + 900); // 900: Valid for 15 mins only, 3600: Valid for 1 hr only
+//   if ($payload) {
+//     $builder->set('payload', $payload);
+//   }
+//   $builder->sign($signer,  $keychain->getPrivateKey(RSA_PRIVATE_KEY));
+//   $token = $builder->getToken();
+//   return $token->__toString();
+// }
+
+// static function validateToken($bearer)
+// {
+//   $domainName = self::getDomainName();
+//   $signer = new Sha256();
+//   $keychain = new Keychain();
+
+//   $parser = new Parser();
+//   $token = $parser->parse((string) $bearer);
+//   if ($token->verify($signer, $keychain->getPublicKey(RSA_PUBLIC_KEY)))
+//   {
+//     $data = new ValidationData();
+//     $data->setIssuer($domainName);
+//     $data->setAudience(AUDIENCE);
+//     $data->setId(JWT_JTI);
+//     // $data->setCurrentTime(time() + 60); // Use this for testing
+//     $val = $token->validate($data);
+//     if ($val)
+//     {
+//       $payload = $token->getClaim('payload');
+//       if (gettype($payload) != "object")
+//         throw new Exception("Invalid authentication data. Please Login and try again.");
+//       return $payload;
+//     }
+//     else
+//       throw new Exception("Token is not valid / Expired.");
+//   }
+//   else
+//     throw new Exception("Token verification failed.");
+// }
+?>

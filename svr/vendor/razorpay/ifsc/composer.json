@@ -1,0 +1,52 @@
+{
+    "name": "razorpay/ifsc",
+    "description": "Razorpay IFSC Codes Library",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Abhay Rana",
+            "email": "nemo@razorpay.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Razorpay\\IFSC\\": "src/php"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": { "Razorpay\\IFSC\\Tests\\": "tests/php/" }
+    },
+    "archive": {
+        "exclude": [
+            "/scraper/",
+            "/node_modules/",
+            "/src/node/",
+            "/src/ruby/",
+            "/tests/ruby/",
+            "/tests/node/",
+            "/tests/fixture/exvcr/",
+            "/.npmignore",
+            "/Gemfile*",
+            "/package.json",
+            "/priv/ifsc-data/"
+        ]
+    },
+    "require": {
+        "php": "^7.1|^8.0",
+        "php-http/client-implementation": "^1.0",
+        "php-http/discovery": "^1.14",
+        "php-http/message-factory": "^1.0",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "guzzlehttp/psr7"       : "^2.0",
+        "php-http/message"      : "^1.11",
+        "php-http/mock-client"  : "^1.4",
+        "phpunit/phpunit"       : "^9.0",
+        "symfony/yaml": "^5.0"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "lwb/lwmis",
+  "description": "All modules of LWMIS",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Sriram bala",
+      "email": "sr.bala.kkl@gmail.com"
+    }
+  ],
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-date": "*",
+    "ext-intl": "*",
+    "ext-json": "*",
+    "ext-openssl": "*",
+    "ext-mbstring": "*",
+    "ext-pgsql": "*",
+    "ext-ctype": "*",
+    "ext-filter": "*",
+    "tecnickcom/tcpdf": "^6.3",
+    "tecnickcom/tc-lib-pdf-font": "^1.9",
+    "php-http/curl-client": "^2.2",
+    "razorpay/ifsc": "^2",
+    "laminas/laminas-diactoros": "^2.4",
+    "lcobucci/jwt": "^4.0",
+    "razorpay/razorpay": "2.*"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "classmap-authoritative": false,
+    "optimize-autoloader": true,
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "LWMIS\\": "src"
+    }
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.5"
+  }
+}
