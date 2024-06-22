@@ -51,7 +51,7 @@ class GeneralFunctions
 
   function getAllowedDomains(): array
   {
-    return ['http://localhost:4200',
+    return ['http://localhost:8081','http://127.0.0.1:8081',
       'http://lwmis.lwb.tn.gov.in','https://lwmis.lwb.tn.gov.in',
       'http://www.lwmis.lwb.tn.gov.in','https://www.lwmis.lwb.tn.gov.in',
       'http://lwmis.tnlwb.broadline.co.in','https://lwmis.tnlwb.broadline.co.in'];

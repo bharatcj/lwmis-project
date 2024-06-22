@@ -1,0 +1,18 @@
+{
+  "name": "lwmis-lwb",
+  "version": "1.0.0",
+  "description": "A project integrating Razorpay and PhonePe with an AngularJS application.",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -o"
+  },
+  "dependencies": {
+    "angular": "^1.6.10",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "http-server": "^14.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

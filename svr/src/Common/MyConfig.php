@@ -14,7 +14,7 @@ class MyConfig
     }
   }
 
-  const IS_TESTING = false;
+  const IS_TESTING = true;
 //   Development (bala)
 //  const pgHost = '127.0.0.1';
 //  const pgPort = 5432;

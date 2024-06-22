@@ -1,4 +1,5 @@
 <?php
+echo "here";
 require_once __DIR__ . '/vendor/autoload.php';
 \LWMIS\Common\ErrorHandler::defineErrorLevel();
 date_default_timezone_set('Asia/Kolkata');
